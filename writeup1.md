@@ -324,7 +324,7 @@ G7Y8I.pcap:char getme2() {
 
 Lorsque nous fessions un cat de `0T16C.pcap` la fonction n'était pas complète mais un commentaire était présent avec le numéro du fichier, il nous suffisait de faire un grep du fichier suivant pour avoir le reste de la fonction. Voici un exemple:
 
-```SHELL
+```sh
 #> cat 0T16C.pcap
 char getme4() {
 
@@ -345,7 +345,8 @@ HEQ6R.pcap://file117
 
 Avec ceci nous pouvons reconstituer le main qui affiche le mot de passe.
 
-```#include <stdio.h>
+```c
+#include <stdio.h>
 char getme1() { return 'I'; }
 char getme2() { return 'h'; }
 char getme3() { return 'e'; }
@@ -391,3 +392,103 @@ int main() {
 	printf("Now SHA-256 it and submit");
 }
 ```
+
+Il ne nous reste plus qu'à hash `Iheartpwnage` avec `sha256` et nous obtenons le mot de passe ssh de `laurie`.
+
+Les nouveaux identifiants que nous obtenons sont `laurie - 330b845f32185747e4f8ca15d40ca59796035c89ea809fb5d30f4da83ecf45a4`
+
+## Étape 7 - Ssh via laurie:
+
+Lorsque que nous arrivons sur la session ssh de laurie, nous trouvons deux fichiers:
+
+ * Un executable nommé `bomb`
+
+ * Un README:
+
+```
+Diffuse this bomb!
+When you have all the password use it as "thor" user with ssh.
+
+HINT:
+P
+ 2
+ b
+
+o
+4
+
+NO SPACE IN THE PASSWORD (password is case sensitive).
+```
+
+L'éxecutable `bomb` est un nouveau jeu de piste ou nous devons trouver six réponse pour résoudre résoudre la bomb.
+
+Pour trouver les solutions au six phases de la bomb nous l'avons désasemblée avec [ghidra](https://ghidra-sre.org/).
+
+Voici les six réponses:
+
+```
+ - Phase 1: Public speaking is very easy.
+ - Phase 2: 1 2 6 24 120 720
+ - Phase 3: 1 b 214
+ - Phase 4: 9
+ - Phase 5: opekmq
+ - Phase 6: 4 2 6 3 1 5
+```
+
+```
+Welcome this is my little bomb !!!! You have 6 stages with
+only one life good luck !! Have a nice day!
+Public speaking is very easy.
+Phase 1 defused. How about the next one?
+1 2 6 24 120 720
+That's number 2.  Keep going!
+1 b 214
+Halfway there!
+9
+So you got that one.  Try this one.
+opekmq
+Good work!  On to the next...
+4 2 6 3 1 5
+Congratulations! You've defused the bomb!
+```
+
+Une fois que nous arrivons à désamorsé la bomb, toutes les réponse forme le mot de passe du login `thor`
+
+Nous obtenons donc de nouvel indentifiant, ceux de `thor - Publicspeakingisveryeasy.126241207201b2149opekmq426135`
+
+## Étape 8 - Ssh via thor:
+
+Sur la session ssh de `thor`, nous trouvons toujours deux fichiers:
+
+ * Un README:
+
+```
+Finish this challenge and use the result as password for 'zaz' user.
+```
+
+ * Un fichier nommé `turtle`:
+
+```
+Tourne gauche de 90 degrees
+Avance 50 spaces
+Avance 1 spaces
+Tourne gauche de 1 degrees
+[...]
+Avance 100 spaces
+Tourne droite de 90 degrees
+Avance 100 spaces
+Recule 200 spaces
+
+Can you digest the message? :)
+```
+
+Le fichier `turtle` écrivait un mot si nous reconsituions les étapes décrites dans le fichier, ce mot était `SLASH`.
+
+À la fin du fichier turtle, il nous dit de créer un `message digest` de mot `SLASH`.
+
+Message disgest est un algo de hash plus souvent nommé sous le nom de `md5`, nous l'avons donc hasher avec cet algo de hashage, le resultat de `md5` nous donnais le mot de passe du login `zaz`.
+
+Voici donc les nouveaux identifiats, ceux de `zaz - 646da671ca01bb5d84dbb5fb2238dc8e`
+
+## Étape 9 - Ssh via zaz:
+
