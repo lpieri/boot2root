@@ -4,18 +4,18 @@
 
 ## Étape 1 - Connexion à la VM par ssh
 
-Nous pouvons nous connecter à la VM avec les idéntifiants zaz trouvés avec la méthode décrite sur le [writeup1](writeup1.md)
+Nous pouvons nous connecter à la VM avec les identifiants zaz trouvés avec la méthode décrite sur le [writeup1](writeup1.md)
 
-## Étape 2 - Vérification de la version du kernel:
+## Étape 2 - Vérification de la version du kernel
 
-Une fois connectés en ssh, nous vérifions la version du kernel linux.
+Une fois connectés en ssh, nous vérifions la version du kernel Linux.
 
 ```SH
 $> uname -r
 3.2.0-91-generic-pae
 ```
 
-Nous vérifions aussi la version de la distribution linux.
+Nous vérifions aussi la version de la distribution Linux.
 
 ```sh
 $> lsb_release -a
@@ -42,7 +42,7 @@ $> ./dirty
 Please enter the new password:
 ```
 
-Après l'exécution du programme, le user root aura été remplacé par firefart (on peut changer ce nom par défaut en modifiant le code) et nous pourrons nous connecter avec le mot de passe choisi.
+Après l'exécution du programme, l'user root aura été remplacé par firefart (on peut changer ce nom par défaut en modifiant le code) et nous pourrons nous connecter avec le mot de passe choisi.
 
 ```
 Complete line:
@@ -72,9 +72,9 @@ uid=0(firefart) gid=0(root) groups=0(root)
 
 ## Un peu plus d'explications
 
-Le script utilisé exploite une faille de sécurité dans le système Copy On Write qui a été présent sur le noyau Linux pendant très longtemps. Copy On Write ou `COW` permets gagner du temps quand on fait une copie. Quand on accède à l'élément copié, on a accès encore à l'élément original et la copie n'est pas faite que quand cet élément est modifié. S'il y a un problème, les données peuvent s'écrire dans un emplacement mémoire qui ne leurs correspond pas.
+Le script utilisé exploite une faille de sécurité dans le système Copy On Write qui a été présent sur le noyau Linux pendant très longtemps. Copy On Write ou `COW` permet gagner du temps quand on fait une copie. Quand on accède à l'élément copié, on a accès encore à l'élément original et la copie n'est pas faite que quand cet élément est modifié. S'il y a un problème, les données peuvent s'écrire dans un emplacement mémoire qui ne leur correspond pas.
 
-L'exploit qui permet écrire sur un fichier qui, à priori, est de lecture seul (par exemple `/ect/passwd`), suit ces pas :
+L'exploit qui permet d'écrire sur un fichier qui, à priori, est de lecture seul (par exemple `/ect/passwd`), suit ces pas :
 
 * Fait un mapping privé du fichier à écrire (même si le contexte est de lecture, il peut être écrit car il est privé).
 
@@ -82,6 +82,10 @@ L'exploit qui permet écrire sur un fichier qui, à priori, est de lecture seul 
 map = mmap(NULL, st.st_size + sizeof(long), PROT_READ, MAP_PRIVATE, f, 0);
 ```
 
-* En même temps qu'il écrit, il lance l'appel system [madvise()](http://man7.org/linux/man-pages/man2/madvise.2.html) pour indiquer au kernel qu'il peut libérer temporairement la mémoire utilisée par le fichier asigné. À chaque fois que l'on veut écrire il faut charger une nouvelle copie, ce qui prends du temps et, si le cycle Copy On Write n'a pas encore fini, on peut écrire sur l'original au lieu de la copie en mémoire.
+* En même temps qu'il écrit, il lance l'appel system [madvise()](http://man7.org/linux/man-pages/man2/madvise.2.html) avec `MADV_DONTNEED` pour indiquer au kernel qu'il peut libérer temporairement la mémoire utilisée par le fichier assigné. À chaque fois que l'on veut écrire, il faut charger une nouvelle copie, ce qui prend du temps et, si le cycle Copy On Write n'a pas encore fini, on peut écrire sur l'original au lieu de la copie en mémoire.
 
-Vous pouvez voir une explication plus detaillée sur le fonctionement de l'exploit [ici](https://www.youtube.com/watch?v=kEsshExn7aE).
+```c
+c += madvise(map, 100, MADV_DONTNEED);
+```
+
+Vous pouvez voir une explication plus détaillée sur le fonctionnement de l'exploit [ici](https://www.youtube.com/watch?v=kEsshExn7aE).
