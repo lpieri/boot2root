@@ -8,6 +8,8 @@ Boot2root est un projet à réaliser en groupe de 4 personnes. Mon équipe et mo
 
 Nous devions à la fin du projet écrire des `writeup` qui expliquais ce que nous avons fait...
 
- * [Writeup1](writeup1.md)
+ * [Writeup1](writeup1.md): La solution du jeu de piste prévue dans le projet
 
- * [Writeup2](writeup2.md)
+ * [Writeup2](writeup2.md): Utilisation de l'exploit [dirtycow](https://dirtycow.ninja/)
+
+ * [Writeup3](bonus/writeup3.md): Lancement d'un terminal au boot du serveur
