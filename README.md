@@ -1,15 +1,23 @@
 ![borntosec](assets/start_vm.png)
 
-#
+<h1 align="center">
+Boot2Root 
+</h1>
 
-## Boot2root est un projet de 42 qui nous initie à la sécurité informatique, via différents challenges.
+<h3 align="center"><b>Description</b></h3>
+<p>Challenge Securité : Cherchez en groupe les différents moyens de passer root sur l'ISO fournie en ressources.</p>
 
-Boot2root est un projet à réaliser en groupe de 4 personnes. Mon équipe et moi avons validé ce projet à la note de .../100
+<p><b>Objectif : </b>Réussir en groupe de 4 étudiants, à passer root sur l'ISO fournie en ressources et rendre les solutions trouvée dans des fichiers "writeup".</p>
 
-Nous devions à la fin du projet écrire des `writeup` qui expliquent comment nous avions fait pour avoir les accès root a l'iso fourni en ressources.
+<p><b>Solutions : </b></p>
 
  * [Writeup1](writeup1.md): La solution du jeu de piste prévue dans le projet
 
  * [Writeup2](writeup2.md): Utilisation de l'exploit [dirtycow](https://dirtycow.ninja/)
 
  * [Writeup3](bonus/writeup3.md): Lancement d'un terminal au boot du serveur
+
+
+----
+<p align="right">
+Credits </br><a href="https://github.com/lpieri">cpieri</a>  <a href="https://github.com/serronia">jdarko</a>  <a href="https://github.com/leonardogb">lgarcia-</a>  <a href="https://github.com/Drakauf">shthevak</a>
