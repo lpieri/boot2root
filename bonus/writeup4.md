@@ -88,4 +88,4 @@ root@BornToSecHackMe:/home/zaz# id
 uid=0(root) gid=0(root) groups=0(root)
 ```
 
-[Plus d'informations](https://beta.hackndo.com/retour-a-la-libc/)
+[Plus d'information](https://beta.hackndo.com/retour-a-la-libc/)
