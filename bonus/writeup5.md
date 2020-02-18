@@ -43,7 +43,7 @@ Si on se connecte au forum avec les identifiants de l'user `lmezard`, on aura ma
 ## Récupérer le filesysteme
 
 Monter le fichier iso avec `mount BornToSecHackMe-v1.1.iso iso/ -o loop` ou (sur mac) clique droit -> ouvrir avec -> DiskImageMounter.  
-Récupérer le fichier [SquashFS] (https://en.wikipedia.org/wiki/SquashFS) du filesysteme `casper/filesystem.squashfs`.  
+Récupérer le fichier [SquashFS](https://en.wikipedia.org/wiki/SquashFS) du filesysteme `casper/filesystem.squashfs`.  
 Décompresser le fichier avec `unsquashfs filesystem.squashfs`.  
 Un dossier `squashfs-root` est crée.  
 On peut acceder à l'ensemble des fichiers présents sur l'ISO.  
