@@ -24,8 +24,11 @@ Boot2Root
 |Linux Privilege Escalation|https://payatu.com/guide-linux-privilege-escalation|
 |Return-to-libc|https://www.exploit-db.com/docs/english/28553-linux-classic-return-to-libc-&-return-to-libc-chaining-tutorial.pdf <br/>[En Français:]https://beta.hackndo.com/retour-a-la-libc/|
 |Sécurité des systèmes informatiques <br/> Escalade des privilèges|http://nicolas.baudru.perso.luminy.univ-amu.fr/Ressources/SSI_securiteEdP.pdf|
-|||
-|||
+|Forum pentester|http://pentest196.rssing.com/chan-58508739/all_p29.html|
+|Analyses de vulnerabilités et malware|http://openaccess.uoc.edu/webapps/o2/bitstream/10609/60607/6/asanchezmag0117TFMmem%C3%B2ria.pdf|
+|Explication exploit Dirty COW|https://www.youtube.com/watch?v=kEsshExn7aE|
+|Attaque avec variables d'environnement|https://fundacion-sadosky.github.io/guia-escritura-exploits/buffer-overflow/4-practica.html|
+|Tutoriel buffer overflow|https://beta.hackndo.com/buffer-overflow/|
 
 ----
 <p align="right">
