@@ -39,6 +39,3 @@ Nous pouvons modifier le `user_type` de `lmezard` dans la table `mlf2_userdata` 
 Si on se connecte au forum avec les identifiants de l'user `lmezard`, on aura maintenant les droits admin et on pourra faire des actions comme gérer les utilisateurs ou même supprimer le forum.
 
 ![admin_forum](/assets/admin_forum.png)
-
-## Récuperation des informations sur l'ISO
-
