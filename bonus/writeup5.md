@@ -39,3 +39,11 @@ Nous pouvons modifier le `user_type` de `lmezard` dans la table `mlf2_userdata` 
 Si on se connecte au forum avec les identifiants de l'user `lmezard`, on aura maintenant les droits admin et on pourra faire des actions comme gérer les utilisateurs ou même supprimer le forum.
 
 ![admin_forum](/assets/admin_forum.png)
+
+## Récupérer le filesysteme
+
+Monter le fichier iso avec `mount BornToSecHackMe-v1.1.iso iso/ -o loop` ou (sur mac) clique droit -> ouvrir avec -> DiskImageMounter.
+Récupérer le fichier du filesysteme compressé `casper/filesystem.squashfs`
+Décompresser le fichier avec `unsquashfs filesystem.squashfs`
+Un dossier `squashfs-root`.
+On peut acceder à l'ensemble des fichiers présents sur l'ISO.
