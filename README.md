@@ -17,6 +17,15 @@ Boot2Root
 
  * [Writeup3](bonus/writeup3.md): Lancement d'un terminal au boot du serveur
 
+<br/>
+
+||<h3 align="center"> Documentation </h3>|
+|:--------:|:---------:|
+|Linux Privilege Escalation|https://payatu.com/guide-linux-privilege-escalation|
+|Return-to-libc|https://www.exploit-db.com/docs/english/28553-linux-classic-return-to-libc-&-return-to-libc-chaining-tutorial.pdf <br/>[En Français:]https://beta.hackndo.com/retour-a-la-libc/|
+|Sécurité des systèmes informatiques <br/> Escalade des privilèges|http://nicolas.baudru.perso.luminy.univ-amu.fr/Ressources/SSI_securiteEdP.pdf|
+|||
+|||
 
 ----
 <p align="right">
